@@ -1,9 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import '@testing-library/jest-dom';
 
 import App from "../App";
 
-// Portfolio Elements
+
 test("displays a top-level heading with the text `Hi, I'm _______`", () => {
   render(<App />);
 
@@ -45,47 +45,66 @@ test("displays a paragraph for your biography", () => {
 
 test("displays the correct links", () => {
   render(<App />);
-
-  const githubLink = screen.getByRole("link", {
-    name: /github/i,
-  });
-  const linkedinLink = screen.getByRole("link", {
-    name: /linkedin/i,
-  });
-
-  expect(githubLink).toHaveAttribute(
-    "href",
-    expect.stringContaining("https://github.com")
-  );
-
-  expect(linkedinLink).toHaveAttribute(
-    "href",
-    expect.stringContaining("https://linkedin.com")
-  );
+  const githubLink = screen.getByRole("link", { name: /github/i });
+  const linkedinLink = screen.getByRole("link", { name: /linkedin/i });
+  expect(githubLink).toHaveAttribute("href", expect.stringContaining("https://github.com"));
+  expect(linkedinLink).toHaveAttribute("href", expect.stringContaining("https://linkedin.com"));
 });
 
-// Newsletter Form - Initial State
 test("the form includes text inputs for name and email address", () => {
-  // your test code here
+  render(<App />);
+  const nameInput = screen.getByLabelText(/name/i);
+  const emailInput = screen.getByLabelText(/email/i);
+  expect(nameInput).toBeInTheDocument();
+  expect(emailInput).toBeInTheDocument();
 });
 
 test("the form includes three checkboxes to select areas of interest", () => {
-  // your test code here
+  render(<App />);
+  const techCheckbox = screen.getByLabelText(/tech/i);
+  const designCheckbox = screen.getByLabelText(/design/i);
+  const marketingCheckbox = screen.getByLabelText(/marketing/i);
+  expect(techCheckbox).toBeInTheDocument();
+  expect(designCheckbox).toBeInTheDocument();
+  expect(marketingCheckbox).toBeInTheDocument();
 });
 
 test("the checkboxes are initially unchecked", () => {
-  // your test code here
+  render(<App />);
+  const techCheckbox = screen.getByLabelText(/tech/i);
+  const designCheckbox = screen.getByLabelText(/design/i);
+  const marketingCheckbox = screen.getByLabelText(/marketing/i);
+  expect(techCheckbox).not.toBeChecked();
+  expect(designCheckbox).not.toBeChecked();
+  expect(marketingCheckbox).not.toBeChecked();
 });
 
-// Newsletter Form - Adding Responses
+
 test("the page shows information the user types into the name and email address form fields", () => {
-  // your test code here
+  render(<App />);
+  fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'John Doe' } });
+  fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'john@example.com' } });
+  fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+  expect(screen.getByText(/thank you for signing up, john doe!/i)).toBeInTheDocument();
+  expect(screen.getByText(/john@example.com has been added to our newsletter/i)).toBeInTheDocument();
 });
 
 test("checked status of checkboxes changes when user clicks them", () => {
-  // your test code here
+  render(<App />);
+  const techCheckbox = screen.getByLabelText(/tech/i);
+  fireEvent.click(techCheckbox);
+  expect(techCheckbox).toBeChecked();
+  fireEvent.click(techCheckbox);
+  expect(techCheckbox).not.toBeChecked();
 });
 
 test("a message is displayed when the user clicks the Submit button", () => {
-  // your test code here
+  render(<App />);
+  fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Jane Doe' } });
+  fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'jane@example.com' } });
+  fireEvent.click(screen.getByLabelText(/tech/i));
+  fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+  expect(screen.getByText(/thank you for signing up, jane doe!/i)).toBeInTheDocument();
+  expect(screen.getByText(/jane@example.com has been added to our newsletter/i)).toBeInTheDocument();
+  expect(screen.getByText(/you are interested in: tech/i)).toBeInTheDocument();
 });
